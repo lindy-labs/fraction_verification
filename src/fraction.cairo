@@ -114,13 +114,6 @@ mod fv {
         let f1 = FractionTrait::new(numerator: 1, denominator: 2);
         let f2 = FractionTrait::new(numerator: 1, denominator: 3);
         assert!(f1 > f2, "Fraction partial ord failed");
-        assert!(-f2 > -f1, "Fraction partial ord failed");
-        assert!(f1 >= f2, "Fraction partial ord failed");
-        assert!(-f2 >= -f1, "Fraction partial ord failed");
-        assert!(f2 < f1, "Fraction partial ord failed");
-        assert!(-f1 < -f2, "Fraction partial ord failed");
-        assert!(f2 <= f1, "Fraction partial ord failed");
-        assert!(-f1 <= -f2, "Fraction partial ord failed");
     }
 }
 

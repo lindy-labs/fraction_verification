@@ -1,0 +1,15 @@
+name = "fraction_verification"
+version = "0.1.0"
+defaultTargets = ["fraction_verification"]
+
+[[require]]
+name = "corelib_verification"
+git = "https://github.com/lindy-labs/corelib_verification.git"
+rev = "main"
+
+[[lean_lib]]
+name = "FractionVerification"
+
+[[lean_exe]]
+name = "fraction_verification"
+root = "Main"

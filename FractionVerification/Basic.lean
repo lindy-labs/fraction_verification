@@ -62,9 +62,70 @@ aegis_spec "fraction_verification::fraction::FractionPartialOrd::lt" :=
     ρ.isRight
 
 set_option maxHeartbeats 1_000_000 in
+--set_option pp.notation false in
 aegis_prove "fraction_verification::fraction::FractionPartialOrd::lt" :=
   fun _ _ (a b : Fraction) _ ρ => by
   unfold_spec "fraction_verification::fraction::FractionPartialOrd::lt"
-  sorry
+  rintro ⟨_,_,_,_,_,_,_,_,_,_,h⟩
+  rcases h with ⟨_,_,_,_,_,_,_,_,_,_,h⟩
+  rcases h with ⟨_,_,_,_,_,_,_,_,_,_,h⟩
+  rcases h with ⟨_,_,_,_,_,_,rfl,(⟨h₁,h₂⟩|h)⟩
+  · rcases h₂ with (⟨h₂,h₃⟩|⟨h₂,rfl,h₃⟩)
+    · rcases h₃ with (⟨h₃,rfl,h₅,h₆⟩|⟨h₃,rfl,h₄⟩)
+      · rcases h₆ with (⟨rfl,h₇,h₈⟩|⟨rfl,rfl⟩)
+        · rcases h₈ with (⟨rfl,h₉,h₁₀⟩|⟨rfl,rfl⟩)
+          · rcases h₁₀ with (⟨rfl,h₁₁,h₁₂⟩|⟨rfl,rfl⟩)
+            · rcases h₁₂ with (⟨rfl,h₁₃⟩|⟨rfl,rfl⟩)
+              · rcases h₁₃ with (⟨h₁₃,rfl⟩|⟨h₁₃,rfl⟩)
+                · simp at *
+                  rcases h₇ with ⟨h₇,rfl⟩
+                  rcases h₁₁ with ⟨h₁₁,rfl⟩
+                  congr 2
+                  simp [Fraction.toRat, UInt256.mul_def]
+                  bv_decide
+                · simp at *
+                  rcases h₅ with ⟨h₅,rfl⟩
+                  rcases h₇ with ⟨h₇,rfl⟩
+                  rcases h₉ with ⟨h₉,rfl⟩
+                  rcases h₁₁ with ⟨h₁₁,rfl⟩
+                  congr 2
+                  simp [Fraction.toRat, UInt256.mul_def]
+                  bv_decide
+              · simp
+            · simp
+          · simp
+        · simp
+      · rcases h₄ with (⟨h₄,h₅,h₆⟩|⟨h₄,rfl⟩)
+        · rcases h₆ with (⟨rfl,h₆,h₇⟩|⟨rfl,rfl⟩)
+          · rcases h₇ with (⟨rfl,h₇,h₈⟩|⟨rfl,rfl⟩)
+            · rcases h₈ with (⟨rfl,h₈,h₉⟩|⟨rfl,rfl⟩)
+              · rcases h₉ with (⟨rfl,h₉⟩|⟨rfl,rfl⟩)
+                · rcases h₉ with (⟨h₉,rfl⟩|⟨h₉,rfl⟩)
+                  · simp at *
+                    rcases h₆ with ⟨h₆,rfl⟩
+                    rcases h₇ with ⟨h₇,rfl⟩
+                    rcases h₈ with ⟨h₈,rfl⟩
+                    congr 2
+                    simp [Fraction.toRat, UInt256.mul_def]
+                    bv_decide
+                  · simp at *
+                    rcases h₅ with ⟨h₅,rfl⟩
+                    rcases h₆ with ⟨h₆,rfl⟩
+                    rcases h₇ with ⟨h₇,rfl⟩
+                    rcases h₈ with ⟨h₈,rfl⟩
+                    congr 2
+                    simp [Fraction.toRat, UInt256.mul_def]
+                    bv_decide
+                · simp
+              · simp
+            · simp
+          · simp
+        · simp at *
+          bv_decide
+    · rcases h₃ with (h₃|⟨h₃,rfl⟩)
+      · sorry
+      · simp [Fraction.toRat] at *
+        sorry -- lhs neg, rhs pos
+  · sorry --right; aesop
 
 aegis_complete

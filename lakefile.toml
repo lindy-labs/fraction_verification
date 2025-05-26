@@ -1,6 +1,6 @@
 name = "fraction_verification"
 version = "0.1.0"
-defaultTargets = ["fraction_verification"]
+defaultTargets = ["FractionVerification"]
 
 [[require]]
 name = "corelib_verification"
@@ -9,7 +9,3 @@ rev = "main"
 
 [[lean_lib]]
 name = "FractionVerification"
-
-[[lean_exe]]
-name = "fraction_verification"
-root = "Main"

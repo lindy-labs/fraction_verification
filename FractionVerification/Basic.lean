@@ -74,6 +74,13 @@ theorem lt_aux3 {x : BitVec 128} (hx : (0#128).sle x = «true») : x.toInt = (0#
   rw [← BitVec.toInt_signExtend_of_le (x := x) (v := 256) (by simp), BitVec.toInt_inj]
   bv_decide
 
+theorem lt_aux3' {x : BitVec 128} (hx : x.sle 0#128) :
+    x.toInt = - (0#128 ++ x.abs).toInt := by
+  rw [← BitVec.toInt_neg_of_ne_intMin (by bv_decide),
+    ← BitVec.toInt_signExtend_of_le (v := 256) (by simp)]
+  congr 1
+  bv_decide
+
 set_option grind.warning false in
 theorem lt_aux4 {x y : BitVec 256} (h : ¬ x.smulOverflow y) : x.toInt * y.toInt = (x * y).toInt := by
   rw [@BitVec.toInt_mul]
@@ -83,6 +90,9 @@ theorem lt_aux4 {x y : BitVec 256} (h : ¬ x.smulOverflow y) : x.toInt * y.toInt
   <;> grind
 
 theorem lt_aux5 {x : BitVec 128} (h : BitVec.sle 0 x) : x.abs = x := by
+  bv_decide
+
+theorem lt_aux5' {x : BitVec 128} (h : BitVec.sle x 0) : x.abs = - x := by
   bv_decide
 
 aegis_spec "fraction_verification::fraction::FractionPartialOrd::lt" :=
@@ -173,7 +183,7 @@ aegis_prove "fraction_verification::fraction::FractionPartialOrd::lt" :=
         · cases h₅
           rcases h₇ with (⟨rfl,h₇,h₈⟩|⟨-,rfl⟩)
           · rcases h₈ with (⟨rfl,h₈,h₉⟩|⟨-,rfl⟩)
-            · rcases h₉ with (⟨rfl,h₉,h₁₀⟩|⟨h₉,rfl⟩)
+            · rcases h₉ with (⟨rfl,h₉,h₁₀⟩|⟨_,rfl⟩)
               · rcases h₁₀ with (⟨rfl,h₁₀⟩|⟨_,rfl⟩)
                 · rcases h₁₀ with (⟨h₁₀,rfl⟩|⟨h₁₀,rfl⟩)
                   · simp [Fraction.toRat] at *
@@ -272,12 +282,14 @@ aegis_prove "fraction_verification::fraction::FractionPartialOrd::lt" :=
                       rcases h₁₀ with ⟨h₁₀,rfl⟩
                       rcases h₁₁ with ⟨h₁₁,rfl⟩
                       simp [UInt256.mul_def, UInt256.append_ofBitVec]
-                      congr 2
                       rw [lt_aux1 (by bv_decide) (by bv_decide), BitVec.slt_iff_toInt_lt]
                       rw [div_lt_div_iff₀ (by simp [BitVec.lt_def] at ha; erw [Nat.cast_lt]; assumption)
                           (by simp [BitVec.lt_def] at hb; erw [Nat.cast_lt]; assumption)]
                       norm_cast
-                      sorry
+                      rw [lt_aux2, lt_aux2, lt_aux3' h₁, Int.neg_mul, neg_lt, ← Int.neg_mul,
+                        ← BitVec.toInt_neg_of_ne_intMin h₁₀, lt_aux3 (by bv_decide)]
+                      rw [lt_aux4 (by bv_decide), lt_aux4 (by bv_decide)]
+                      rw [lt_aux5' (by bv_decide)]
                     · simp only [BitVec.ofNat_eq_ofNat, Fraction.denom,
                       Bool.toSierraBool_iff_eq_true', Bool.toSierraBool_iff_eq_false',
                       decide_eq_false_iff_not, ne_eq, Nat.ofNat_pos, Sum.inl.injEq, Sum.isRight_inl,
@@ -378,5 +390,36 @@ aegis_prove "fraction_verification::fraction::FractionPartialOrd::lt" :=
           erw [← BitVec.slt_iff_toInt_lt (x := 0#128)]
           assumption
         · norm_cast
+
+aegis_spec "fraction_verification::fraction::FractionlImpl::new" :=
+  fun _ n d ρ =>
+  d ≠ 0 ∧ ρ = .inl (n, d) ∨
+    d = 0 ∧ ρ.isRight
+
+aegis_prove "fraction_verification::fraction::FractionlImpl::new" :=
+  fun _ n d ρ => by
+  unfold_spec "fraction_verification::fraction::FractionlImpl::new"
+  aesop
+
+aegis_spec "fraction_verification::fraction::FractionPartialOrd::gt" :=
+  fun _ _ (a b : Fraction) _ ρ =>
+  0 < a.denom → 0 < b.denom →
+  ρ = .inl (Bool.toSierraBool (b.toRat < a.toRat)) ∨
+    ρ.isRight
+
+aegis_prove "fraction_verification::fraction::FractionPartialOrd::gt" :=
+  fun _ _ (a b : Fraction) _ ρ => by
+  unfold_spec "fraction_verification::fraction::FractionPartialOrd::gt"
+  aesop
+
+aegis_spec "fraction_verification::fraction::fv::fraction_parial_ord_test" :=
+  fun _ _ _ _ =>
+  True
+
+set_option maxHeartbeats 1_000_000 in
+aegis_prove "fraction_verification::fraction::fv::fraction_parial_ord_test" :=
+  fun _ _ _ ρ => by
+  intro
+  trivial
 
 aegis_complete
